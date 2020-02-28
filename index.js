@@ -1,10 +1,19 @@
 const core = require('@actions/core')
-const {context} = require('@actions/github')
+const { context } = require('@actions/github')
+const { Octokit } = require('@octokit/rest')
 const match = require('./match');
 
-function run() {
+async function run() {
   try {
-    const pr = context.payload.pull_request || {}
+    const octokit = new Octokit({ auth: core.getInput('github_token') });
+    const pr = await octokit.pulls.get(
+      {
+        owner: context.repo.owner,
+        pull_number: context.payload.pull_request.number,
+        repo: context.repo.repo
+      }
+    );
+    // const pr = context.payload.pull_request || {}
     const labels = pr.labels || []
     const labelNames = labels.map(label => label.name)
     const allowedLabels = match.parseAllowed(core.getInput('allowed'))

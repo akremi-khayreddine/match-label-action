@@ -1,27 +1,10 @@
-const core = require('@actions/core')
-const { context } = require('@actions/github')
-const { Octokit } = require('@octokit/rest')
-const match = require('./match');
+const cp = require('child_process');
+const path = require('path');
 
-async function run() {
-  try {
-    const octokit = new Octokit({ auth: core.getInput('github_token') });
-    const pr = await octokit.pulls.get(
-      {
-        owner: context.repo.owner,
-        pull_number: context.payload.pull_request.number,
-        repo: context.repo.repo
-      }
-    );
-    // const pr = context.payload.pull_request || {}
-    const labels = pr.labels || []
-    const labelNames = labels.map(label => label.name)
-    const allowedLabels = match.parseAllowed(core.getInput('allowed'))
-    const matchingLabel = match.findMatching(labelNames, allowedLabels)
-    core.setOutput('match', matchingLabel)
-  } catch (error) {
-    core.setFailed(error.message)
-  }
-}
-
-run()
+test('test runs', () => {
+    process.env.INPUT_ALLOWED = 'hello,world'
+    process.env.GITHUB_EVENT_PATH = path.join(__dirname, '.tests/context.json')
+    const ip = path.join(__dirname, 'index.js')
+    const output = cp.execSync(`node ${ip}`, {env: process.env, encoding: 'utf8'})
+    expect(output).toBe('::set-output name=match,::hello\n')
+})

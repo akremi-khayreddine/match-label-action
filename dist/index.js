@@ -515,12 +515,21 @@ module.exports = require("os");
 /***/ (function(__unusedmodule, __unusedexports, __webpack_require__) {
 
 const core = __webpack_require__(470)
-const {context} = __webpack_require__(469)
+const { context } = __webpack_require__(469)
+const { Octokit } = __webpack_require__(613)
 const match = __webpack_require__(903);
 
-function run() {
+async function run() {
   try {
-    const pr = context.payload.pull_request || {}
+    const octokit = new Octokit({ auth: core.getInput('github_token') });
+    const pr = await octokit.pulls.get(
+      {
+        owner: context.repo.owner,
+        pull_number: context.payload.pull_request.number,
+        repo: context.repo.repo
+      }
+    );
+    // const pr = context.payload.pull_request || {}
     const labels = pr.labels || []
     const labelNames = labels.map(label => label.name)
     const allowedLabels = match.parseAllowed(core.getInput('allowed'))
