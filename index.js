@@ -5,7 +5,7 @@ const match = require('./match');
 
 async function run() {
   try {
-    const octokit = new Octokit({ auth: core.getInput('github_token') });
+    const octokit = Octokit({ auth: core.getInput('github_token') });
     const pr = await octokit.pulls.get(
       {
         owner: context.repo.owner,
