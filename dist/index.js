@@ -813,16 +813,16 @@ const match = __webpack_require__(903);
 
 async function run() {
   try {
-    const octokit = Octokit({ auth: core.getInput('github_token') });
-    const pr = await octokit.pulls.get(
+    const octokit = new Octokit({ auth: core.getInput('github_token') });
+    const result = await octokit.pulls.get(
       {
         owner: context.repo.owner,
         pull_number: context.payload.pull_request.number,
         repo: context.repo.repo
       }
     );
-    // const pr = context.payload.pull_request || {}
-    const labels = pr.labels || []
+    const pr = result.data;
+    const labels = pr ? pr.labels : [];
     const labelNames = labels.map(label => label.name)
     const allowedLabels = match.parseAllowed(core.getInput('allowed'))
     const matchingLabel = match.findMatching(labelNames, allowedLabels)
@@ -833,6 +833,8 @@ async function run() {
 }
 
 run()
+
+
 
 
 /***/ }),
