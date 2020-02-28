@@ -1,4 +1,4 @@
-const core = require('@actions/core')
+const core = require('@actions/core')  
 const { context } = require('@actions/github')
 const { Octokit } = require('@octokit/rest')
 const match = require('./match');
